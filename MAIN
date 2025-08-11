@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Link Library</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h1 { text-align: center; }
+  #link-form { max-width: 500px; margin: 20px auto; display: flex; gap: 10px; }
+  input { padding: 8px; flex: 1; }
+  button { padding: 8px 12px; }
+  ul { list-style: none; padding: 0; }
+  li { background: #f0f0f0; margin: 8px 0; padding: 10px; border-radius: 4px; }
+  a { color: #007BFF; text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>My Link Library</h1>
+
+<form id="link-form">
+  <input type="text" id="title" placeholder="Title" required />
+  <input type="url" id="url" placeholder="https://..." required />
+  <button type="submit">Add Link</button>
+</form>
+
+<input type="text" id="search" placeholder="Search links..." />
+
+<ul id="links"></ul>
+
+<script>
+const form = document.getElementById('link-form');
+const linksUl = document.getElementById('links');
+const searchInput = document.getElementById('search');
+
+let links = JSON.parse(localStorage.getItem('links')) || [];
+
+function saveLinks() {
+  localStorage.setItem('links', JSON.stringify(links));
+}
+
+function renderLinks(filter = '') {
+  linksUl.innerHTML = '';
+  links
+    .filter(link => link.title.toLowerCase().includes(filter.toLowerCase()))
+    .forEach((link, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <strong>${link.title}</strong><br/>
+      <a href="${link.url}" target="_blank">${link.url}</a>
+      <button onclick="deleteLink(${index})">Delete</button>
+    `;
+    linksUl.appendChild(li);
+  });
+}
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('title').value;
+  const url = document.getElementById('url').value;
+  links.push({ title, url });
+  saveLinks();
+  renderLinks();
+  form.reset();
+});
+
+function deleteLink(index) {
+  links.splice(index, 1);
+  saveLinks();
+  renderLinks(searchInput.value);
+}
+
+searchInput.addEventListener('input', () => {
+  renderLinks(searchInput.value);
+});
+
+// Initial render
+renderLinks();
+</script>
+
+</body>
+</html>
